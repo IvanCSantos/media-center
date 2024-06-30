@@ -1,0 +1,108 @@
+version: '3.4'
+services:
+  deluge:
+    container_name: deluge
+    image: 'linuxserver/deluge:latest'
+    restart: unless-stopped
+    environment:
+      - 'PUID=${PUID}'
+      - 'PGID=${PGID}'
+      - 'TZ=${TZ}'
+    volumes:
+      - '${ROOT}/MediaCenter/config/deluge:/config'
+      - '${HDDSTORAGE}:/MediaCenterBox'
+    ports:
+      - '8112:8112'
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:arm64v8-latest
+    container_name: prowlarr
+    environment:
+      - 'PUID=${PUID}'
+      - 'PGID=${PGID}'
+      - 'TZ=${TZ}'
+    volumes:
+      - '${ROOT}/MediaCenter/config/prowlarr:/config'
+    restart: unless-stopped
+    ports:
+      - '9696:9696'
+
+  sonarr:
+    container_name: sonarr
+    image: 'linuxserver/sonarr:arm64v8-latest'
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - 'PUID=${PUID}'
+      - 'PGID=${PGID}'
+      - 'TZ=${TZ}'
+    volumes:
+      - '/etc/localtime:/etc/localtime:ro'
+      - '${ROOT}/MediaCenter/config/sonarr:/config'
+      - '${HDDSTORAGE}:/MediaCenterBox'
+  
+  radarr:
+    container_name: radarr
+    image: 'linuxserver/radarr:arm64v8-latest'
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - 'PUID=${PUID}'
+      - 'PGID=${PGID}'
+      - 'TZ=${TZ}'
+    volumes:
+      - '/etc/localtime:/etc/localtime:ro'
+      - '${ROOT}/MediaCenter/config/radarr:/config'
+      - '${HDDSTORAGE}:/MediaCenterBox'
+      
+  bazarr:
+    container_name: bazarr
+    image: 'linuxserver/bazarr:arm64v8-latest'
+    restart: unless-stopped
+    #network_mode: host
+    environment:
+      - 'PUID=${PUID}'
+      - 'PGID=${PGID}'
+      - 'TZ=${TZ}'
+      - UMASK_SET=022
+    volumes:
+      - '${ROOT}/MediaCenter/config/bazarr:/config'
+      - '${HDDSTORAGE}:/MediaCenterBox'
+    ports:
+      - '6767:6767'
+      
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker:latest
+    restart: unless-stopped
+    ports:
+      - 32400:32400/tcp
+      - 3005:3005/tcp
+      - 8324:8324/tcp
+      - 32469:32469/tcp
+      - 1900:1900/udp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+    environment:
+      - 'TZ=${TZ}'
+      - 'PLEX_CLAIM=${PLEX_CLAIM}'
+      - 'ADVERTISE_IP=${PLEX_ADVERTISE_URL}'
+    hostname: plexcasa.batcaverna.local
+    volumes:
+      - '${ROOT}/MediaCenter/config/plex/database:/config'
+      - '${ROOT}/MediaCenter/config/plex/transcode:/transcode'
+      - "${HDDSTORAGE}/Filmes\ e\ Series:/data"
+
+  overseerr:
+    image: 'sctx/overseerr:latest'
+    container_name: overseerr
+    environment:
+      - LOG_LEVEL=debug
+      - 'TZ=${TZ}'
+    ports:
+      - '5055:5055'
+    volumes:
+      - '${ROOT}/MediaCenter/config/overseerr/config:/app/config'
+    restart: unless-stopped
