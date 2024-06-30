@@ -106,3 +106,21 @@ services:
     volumes:
       - '${ROOT}/MediaCenter/config/overseerr/config:/app/config'
     restart: unless-stopped
+
+  qbittorrent:
+    image: 'lscr.io/linuxserver/qbittorrent:arm64v8-latest'
+    container_name: qbit
+    environment:
+      - 'PUID=${PUID}'
+      - 'PGID=${PGID}'
+      - 'TZ=${TZ}'
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+    volumes:
+      - '${ROOT}/MediaCenter/config/qbittorrent/config:/config'
+      - '${HDDSTORAGE}:/MediaCenterBox'
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
